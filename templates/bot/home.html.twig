@@ -1,0 +1,16 @@
+{% block javascripts %}
+    <script>
+        var botmanWidget = {
+            frameEndpoint: '{{ path("chatframe") }}',
+            chatServer: '{{ path("message") }}',
+            introMessage: '{{ startMessage }}',
+            title: 'AFP Bot',
+            mainColor: '#0052d1',
+            bubbleBackground: '#0052d1',
+            desktopHeight: 500,
+            desktopWidth: 600,
+            aboutText: ''
+        };
+    </script>
+    <script src='https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js'></script>
+{% endblock %}

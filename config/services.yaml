@@ -1,0 +1,114 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Tests,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    
+    mailService:
+        class: App\Services\MailService
+        autowire: true
+        public: true
+        arguments:
+            - '@swiftmailer.mailer'
+            - '@twig'
+
+    ticketService:
+        class: App\Services\Entity\TicketService
+        autowire: true
+        public: true
+        arguments:
+            - '@Doctrine\Persistence\ManagerRegistry'
+
+    categoryService:
+        class: App\Services\Entity\CategoryService
+        autowire: true
+        public: true
+        arguments:
+            - '@Doctrine\Persistence\ManagerRegistry'
+
+    admin.intent:
+        class: App\Admin\BotMessageAdmin\IntentAdmin
+        arguments: [~, App\Entity\Intent , ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: 'Intent', group: 'Bot Message' }
+
+    admin.utterance:
+        class: App\Admin\BotMessageAdmin\UtteranceAdmin
+        arguments: [~,App\Entity\Utterance,~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: "Message", group: 'Bot Message' }
+
+    admin.support.context:
+        class: App\Admin\Parameters\SupportContextAdmin
+        arguments: [~,App\Entity\SupportContext,~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: "Context de support", group: 'parameters' }
+
+    admin.speaker.email:
+        class: App\Admin\Parameters\SpeakerEmailAdmin
+        arguments: [~,App\Entity\SpeakerEmail,~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: "Email de l'intervenant", group: "parameters" }
+
+#    App\Conversations\:
+#        resource: '../src/Conversations/*'
+#        calls:
+#            - [ setContainer, [ '@service_container' ]]
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    admin.block:
+        class: App\Admin\BlockAdmin
+        arguments: [~, App\Entity\Block, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Block }
+        public: true
+
+    admin.content:
+        class: App\Admin\ContentAdmin
+        arguments: [~, App\Entity\Content, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Content }
+        public: true
+
+    admin.action:
+        class: App\Admin\ActionAdmin
+        arguments: [~, App\Entity\Action, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Action }
+        public: true
+
+    admin.flow:
+        class: App\Admin\FlowAdmin
+        arguments: [~, App\Entity\Flow, App\Controller\FlowAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Flow }
+        public: true
+
+    admin.button:
+        class: App\Admin\ButtonAdmin
+        arguments: [~, App\Entity\Button, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Button }
+        public: true
